@@ -221,7 +221,6 @@ pub fn encodePublish(buf: []u8, packet_identifier: ?u16, opts: mqttz.PublishOpts
         .qos = opts.qos,
         .retain = opts.retain,
     };
-    _ = publish_flags;
 
     // reserve 1 byte for the packet type
     // reserve 4 bytes for the packet length (which might be less than 4 bytes)
@@ -244,7 +243,7 @@ pub fn encodePublish(buf: []u8, packet_identifier: ?u16, opts: mqttz.PublishOpts
         return error.WriteBufferIsFull;
     }
     @memcpy(buf[payload_offset..end], message);
-    return encodePacketHeader(buf[0..end], 3, 0);
+    return encodePacketHeader(buf[0..end], 3, @as(u4, @bitCast(publish_flags)));
 }
 
 pub fn encodePubAck(buf: []u8, opts: mqttz.PubAckOpts) ![]u8 {

@@ -1699,7 +1699,7 @@ test "Client: publish" {
         try t.expectEqual(30, pi);
 
         try ctx.expectWritten(1, &.{
-            48, // packet type (0011 1 10 1)  (3 for the packet type, 1 for dup, 2 for qos, 1 for retain)
+            61, // packet type (0011 1 10 1)  (3 for the packet type, 1 for dup, 2 for qos, 1 for retain)
             17, // payload length
             0,
             2,
