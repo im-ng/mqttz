@@ -2142,7 +2142,7 @@ test "Client: readPacket fuzz" {
 
         const suback2 = (try client.readPacket(&ctx)).?.suback;
         try t.expectEqual(2, suback2.packet_identifier);
-        try t.expectEqualSlices(u8, &([_]u8{0} ** 249), suback2.results);
+        try t.expectEqualSlices(u8, &(@as([249]u8, @splat(0))), suback2.results);
     }
 }
 
@@ -2445,7 +2445,7 @@ test "Client: readPacket publish" {
         const msg = try codec.encodePublish(&buf, .mqtt_5_0, 9001, .{
             .topic = "hi",
             .qos = .at_least_once,
-            .message = "a" ** 300,
+            .message = &(@as([300]u8, @splat('a'))),
         });
         ctx.reset();
         ctx.reply(msg);

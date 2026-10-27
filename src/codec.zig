@@ -556,8 +556,8 @@ test "codec: writeString" {
     }
 
     {
-        const n = try writeString(&buf, "a" ** 300);
-        try t.expectEqualSlices(u8, [_]u8{ 1, 44 } ++ "a" ** 300, buf[0..n]);
+        const n = try writeString(&buf, &(@as([300]u8, @splat('a'))));
+        try t.expectEqualSlices(u8, [_]u8{ 1, 44 } ++ &(@as([300]u8, @splat('a'))), buf[0..n]);
     }
 }
 
