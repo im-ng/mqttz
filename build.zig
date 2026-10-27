@@ -4,7 +4,7 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const mqttz_module = b.addModule("mqttz", .{
+            const mqttz_module = b.addModule("mqttz", .{
         .root_source_file = b.path("src/mqtt.zig"),
         .target = target,
         .optimize = optimize,
@@ -82,9 +82,7 @@ fn setupExample(b: *std.Build, exe: *std.Build.Step.Compile, comptime name: []co
 
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
+        run_cmd.addPassthruArgs();
     const run_step = b.step("example_" ++ name, "Run the " ++ name ++ " example");
     run_step.dependOn(&run_cmd.step);
 }

@@ -132,26 +132,26 @@ pub fn write(buf: []u8, value: anytype, comptime properties: []const PropertyTyp
         if (@field(value, @tagName(property))) |v| {
             switch (@TypeOf(v)) {
                 u16 => {
-                    buf[pos] = @intFromEnum(property);
+                    buf[pos] = @backingInt(property);
                     pos += 1;
                     const end = pos + 2;
                     codec.writeInt(u16, buf[pos..end][0..2], v);
                     pos = end;
                 },
                 u32 => {
-                    buf[pos] = @intFromEnum(property);
+                    buf[pos] = @backingInt(property);
                     pos += 1;
                     const end = pos + 4;
                     codec.writeInt(u32, buf[pos..end][0..4], v);
                     pos = end;
                 },
                 []const u8 => {
-                    buf[pos] = @intFromEnum(property);
+                    buf[pos] = @backingInt(property);
                     pos += 1;
                     pos += try codec.writeString(buf[pos..], v);
                 },
                 []const mqtt.UserProperty => for (v) |up| {
-                    buf[pos] = @intFromEnum(property);
+                    buf[pos] = @backingInt(property);
                     pos += 1;
                     pos += try codec.writeString(buf[pos..], up.key);
                     pos += try codec.writeString(buf[pos..], up.value);
@@ -159,8 +159,8 @@ pub fn write(buf: []u8, value: anytype, comptime properties: []const PropertyTyp
                 else => {
                     switch (@typeInfo(@TypeOf(v))) {
                         .@"enum" => {
-                            buf[pos] = @intFromEnum(property);
-                            buf[pos + 1] = @intFromEnum(v);
+                            buf[pos] = @backingInt(property);
+                            buf[pos + 1] = @backingInt(v);
                             pos += 2;
                         },
                         else => unreachable,
@@ -259,13 +259,13 @@ pub const Reader = struct {
             self.buf = buf[property_end..];
             return .{ .user_properties = buf };
         } else {
-            inline for (@typeInfo(Property).@"union".fields) |field| {
-                if (property_type == @intFromEnum(@field(PropertyType, field.name))) {
-                    const value, const len = try readValue(field.type, buf[1..]);
+            inline for (@typeInfo(Property).@"union".field_names, @typeInfo(Property).@"union".field_types, @typeInfo(Property).@"union".field_attrs) |field_name, field_type, _| {
+                if (property_type == @backingInt(@field(PropertyType, field_name))) {
+                    const value, const len = try readValue(field_type, buf[1..]);
 
                     // + 1 for the property type
                     self.buf = buf[1 + len ..];
-                    return @unionInit(Property, field.name, value);
+                    return @unionInit(Property, field_name, value);
                 }
             }
         }
